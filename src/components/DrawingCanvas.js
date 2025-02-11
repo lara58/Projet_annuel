@@ -13,8 +13,12 @@ const DrawingCanvas = () => {
 
   useEffect(() => {
     const loadModel = async () => {
-      const mnistModel = await tf.loadLayersModel('https://tfhub.dev/google/tfjs-model/mnist/1/default/1');
-      setModel(mnistModel);
+      try {
+        const mnistModel = await tf.loadLayersModel('https://storage.googleapis.com/tfjs-models/tfjs/mnist/model.json');
+        setModel(mnistModel);
+      } catch (error) {
+        console.error("Erreur de chargement du modèle:", error);
+      }
     };
     loadModel();
   }, []);
@@ -45,17 +49,18 @@ const DrawingCanvas = () => {
 
   const handleMouseUp = useCallback(async () => {
     setIsDrawing(false);
-    const stage = stageRef.current;
-    const dataURL = stage.toDataURL({ pixelRatio: 3 });
-    const prediction = await predictDigit(dataURL);
-    setPrediction(prediction);
-    if (prediction === captchaDigit) {
-      setIsAccessGranted(true);
-      alert("Captcha réussi !");
-    } else {
-      alert("Erreur, veuillez réessayer.");
-      setCaptchaDigit(Math.floor(Math.random() * 10));
-      setPrediction(null);
+    if (stageRef.current) {
+      const dataURL = stageRef.current.toDataURL({ pixelRatio: 3 });
+      const prediction = await predictDigit(dataURL);
+      setPrediction(prediction);
+      if (prediction === captchaDigit) {
+        setIsAccessGranted(true);
+        alert("Captcha réussi !");
+      } else {
+        alert("Erreur, veuillez réessayer.");
+        setCaptchaDigit(Math.floor(Math.random() * 10));
+        setPrediction(null);
+      }
     }
   }, [captchaDigit, model]);
 
