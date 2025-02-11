@@ -1,4 +1,4 @@
-import React, { useRef, useState } from 'react';
+import React, { useRef, useState, useCallback } from 'react';
 import { Stage, Layer, Line } from 'react-konva';
 
 const DrawingCanvas = ({ onSave }) => {
@@ -6,32 +6,40 @@ const DrawingCanvas = ({ onSave }) => {
   const [lines, setLines] = useState([]);
   const [isDrawing, setIsDrawing] = useState(false);
 
-  const handleMouseDown = (e) => {
+  const handleMouseDown = useCallback((e) => {
     setIsDrawing(true);
     const pos = stageRef.current.getPointerPosition();
-    setLines([...lines, { points: [pos.x, pos.y] }]);
-  };
+    if (pos) {
+      setLines((prevLines) => [...prevLines, { points: [pos.x, pos.y] }]);
+    }
+  }, []);
 
-  const handleMouseMove = (e) => {
+  const handleMouseMove = useCallback((e) => {
     if (!isDrawing) return;
     const stage = stageRef.current;
     const point = stage.getPointerPosition();
-    let lastLine = lines[lines.length - 1];
-    lastLine.points = lastLine.points.concat([point.x, point.y]);
-    lines.splice(lines.length - 1, 1, lastLine);
-    setLines(lines.concat());
-  };
+    if (point) {
+      setLines((prevLines) => {
+        const lastLine = prevLines[prevLines.length - 1];
+        const updatedLine = {
+          ...lastLine,
+          points: lastLine.points.concat([point.x, point.y]),
+        };
+        return [...prevLines.slice(0, -1), updatedLine];
+      });
+    }
+  }, [isDrawing]);
 
-  const handleMouseUp = () => {
+  const handleMouseUp = useCallback(() => {
     setIsDrawing(false);
     const stage = stageRef.current;
     const dataURL = stage.toDataURL({ pixelRatio: 3 });
     onSave(dataURL);
-  };
+  }, [onSave]);
 
-  const clearCanvas = () => {
+  const clearCanvas = useCallback(() => {
     setLines([]);
-  };
+  }, []);
 
   return (
     <div style={{ textAlign: "center" }}>
