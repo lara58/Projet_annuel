@@ -3,6 +3,7 @@
   "version": "0.1.0",
   "private": true,
   "dependencies": {
+    "@tensorflow/tfjs": "^4.22.0",
     "assert": "^2.1.0",
     "axios": "^1.7.9",
     "browserify-zlib": "^0.2.0",
