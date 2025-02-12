@@ -38,9 +38,12 @@ const DrawingCanvas = () => {
     if (point) {
       setLines((prevLines) => {
         const lastLine = prevLines[prevLines.length - 1];
+        if (!lastLine) {
+          return prevLines;
+        }
         const updatedLine = {
           ...lastLine,
-          points: lastLine.points.concat([point.x, point.y]),
+          points: lastLine.points ? lastLine.points.concat([point.x, point.y]) : [point.x, point.y],
         };
         return [...prevLines.slice(0, -1), updatedLine];
       });
@@ -94,7 +97,7 @@ const DrawingCanvas = () => {
     <div>
       {!isAccessGranted ? (
         <div style={{ textAlign: "center" }}>
-          <h2>Dessinez un chiffre: {captchaDigit}</h2>
+          <h2 style={{ color: 'white' }}>Dessinez un chiffre: {captchaDigit}</h2>
           <Stage
             width={280}
             height={280}
@@ -102,14 +105,14 @@ const DrawingCanvas = () => {
             onMouseDown={handleMouseDown}
             onMouseMove={handleMouseMove}
             onMouseUp={handleMouseUp}
-            style={{ border: '1px solid black' }}
+            style={{ border: '1px solid black', backgroundColor: 'black' }}
           >
             <Layer>
               {lines.map((line, i) => (
                 <Line
                   key={i}
                   points={line.points}
-                  stroke="black"
+                  stroke="white"
                   strokeWidth={10}
                   lineCap="round"
                   lineJoin="round"
@@ -123,7 +126,7 @@ const DrawingCanvas = () => {
               Envoyer
             </button>
           </div>
-          {prediction !== null && <p>Prédiction: {prediction}</p>}
+          {prediction !== null && <p style={{ color: 'white' }}>Prédiction: {prediction}</p>}
         </div>
       ) : (
         <div>
